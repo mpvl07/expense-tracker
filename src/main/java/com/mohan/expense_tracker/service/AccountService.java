@@ -11,7 +11,6 @@ public interface AccountService {
 
     Account createAccount(UUID userId, CreateAccountRequest request);
 
-    Account getAccountById(UUID accountId);
-
+    Account getAccountById(UUID accountId, UUID userId);
     Page<Account> getAccountsByUserId(UUID userId, Pageable pageable);
 }

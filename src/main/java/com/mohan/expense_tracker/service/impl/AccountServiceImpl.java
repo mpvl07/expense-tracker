@@ -4,6 +4,7 @@ import com.mohan.expense_tracker.dto.account.CreateAccountRequest;
 import com.mohan.expense_tracker.entity.Account;
 import com.mohan.expense_tracker.entity.User;
 import com.mohan.expense_tracker.enums.SupportedCurrency;
+import com.mohan.expense_tracker.exception.ResourceNotFoundException;
 import com.mohan.expense_tracker.mapper.AccountMapper;
 import com.mohan.expense_tracker.repository.AccountRepository;
 import com.mohan.expense_tracker.repository.UserRepository;
@@ -50,14 +51,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional(readOnly = true)
-    public Account getAccountById(UUID accountId) {
 
-        return accountRepository.findById(accountId)
-                .orElseThrow(() ->
-                        new EntityNotFoundException(
-                                "Account not found: " + accountId));
+    public Account getAccountById(UUID accountId, UUID userId) {
+
+        return accountRepository.findByIdAndUserId(accountId, userId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
     }
-
     @Override
     @Transactional(readOnly = true)
     public Page<Account> getAccountsByUserId(

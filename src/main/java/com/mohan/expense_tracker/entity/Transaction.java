@@ -46,6 +46,9 @@ public class Transaction {
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "idempotency_key", nullable = false, unique = true, length = 100)
+    private String idempotencyKey;
+
     @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();

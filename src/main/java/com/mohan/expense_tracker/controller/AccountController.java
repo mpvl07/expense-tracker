@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -25,8 +26,9 @@ public class AccountController {
 
     @PostMapping
     public ResponseEntity<AccountResponse> createAccount(
-            @RequestParam UUID userId,
             @Valid @RequestBody CreateAccountRequest request) {
+
+        UUID userId = getAuthenticatedUserId();
 
         Account account = accountService.createAccount(userId, request);
 
@@ -34,18 +36,23 @@ public class AccountController {
                 .status(HttpStatus.CREATED)
                 .body(accountMapper.toResponse(account));
     }
+
     @GetMapping("/{accountId}")
     public ResponseEntity<AccountResponse> getAccountById(
             @PathVariable UUID accountId) {
 
-        Account account = accountService.getAccountById(accountId);
+        UUID userId = getAuthenticatedUserId();
+
+        Account account = accountService.getAccountById(accountId, userId);
 
         return ResponseEntity.ok(accountMapper.toResponse(account));
     }
+
     @GetMapping
     public ResponseEntity<Page<AccountResponse>> getAccounts(
-            @RequestParam UUID userId,
             Pageable pageable) {
+
+        UUID userId = getAuthenticatedUserId();
 
         Page<Account> accounts =
                 accountService.getAccountsByUserId(userId, pageable);
@@ -54,5 +61,13 @@ public class AccountController {
                 accounts.map(accountMapper::toResponse);
 
         return ResponseEntity.ok(response);
+    }
+
+    private UUID getAuthenticatedUserId() {
+
+        return (UUID) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
     }
 }
